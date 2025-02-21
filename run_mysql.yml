@@ -1,0 +1,39 @@
+- name: Install and start MySQL server
+  hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Install MySQL server
+      apt:
+        name: mysql-server
+        state: present
+        update_cache: yes
+
+    - name: Ensure MySQL service is running
+      systemd:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: Set MySQL root password
+      mysql_user:
+        login_user: root
+        login_password: ""
+        name: root
+        password: "rootpassword"
+        host_all: yes
+        state: present
+
+    - name: Create MySQL database
+      mysql_db:
+        name: example_db
+        state: present
+
+    - name: Create MySQL user
+      mysql_user:
+        login_user: root
+        login_password: "rootpassword"
+        name: example_user
+        password: "example_pass"
+        priv: "example_db.*:ALL"
+        state: present
