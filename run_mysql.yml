@@ -1,39 +1,43 @@
-- name: Install and start MySQL server
+---
+- name: Установка и настройка MySQL
   hosts: localhost
   become: yes
-
   tasks:
-    - name: Install MySQL server
+
+    - name: Обновление кеша пакетов (для Debian-based систем)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Установка MySQL-сервера (Ubuntu/Debian)
       apt:
         name: mysql-server
         state: present
-        update_cache: yes
+      when: ansible_os_family == "Debian"
 
-    - name: Ensure MySQL service is running
-      systemd:
+    - name: Установка MySQL-сервера (CentOS/RHEL)
+      yum:
+        name: mysql-server
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Запуск и включение MySQL в автозапуск
+      service:
         name: mysql
         state: started
         enabled: yes
 
-    - name: Set MySQL root password
+    - name: Установка root-пароля MySQL
       mysql_user:
-        login_user: root
-        login_password: ""
         name: root
-        password: "rootpassword"
-        host_all: yes
-        state: present
+        host: localhost
+        password: "SuperSecretPass"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+      ignore_errors: yes
 
-    - name: Create MySQL database
+    - name: Создание тестовой базы данных
       mysql_db:
-        name: example_db
+        name: test_db
         state: present
-
-    - name: Create MySQL user
-      mysql_user:
         login_user: root
-        login_password: "rootpassword"
-        name: example_user
-        password: "example_pass"
-        priv: "example_db.*:ALL"
-        state: present
+        login_password: "SuperSecretPass"
