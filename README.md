@@ -36,7 +36,6 @@
 
 #### 🔹 Создание файла `vault.yml` и добавление SSH-ключа:
 ```yaml
----
 ssh_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQ..."
 ```
 
