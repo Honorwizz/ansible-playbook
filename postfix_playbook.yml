@@ -1,0 +1,41 @@
+---
+- name: Управление почтовым сервером Postfix
+  hosts: target_server
+  become: yes  # Запускать от root
+  tasks:
+
+    - name: Обновление списка пакетов (только для Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+      tags:
+        - init postfix
+
+    - name: Установка Postfix
+      package:
+        name: postfix
+        state: present
+      tags:
+        - init postfix
+
+    - name: Запуск и включение Postfix в автозагрузку
+      service:
+        name: postfix
+        state: started
+        enabled: yes
+      tags:
+        - init postfix
+
+    - name: Остановка и удаление Postfix
+      package:
+        name: postfix
+        state: absent
+      tags:
+        - drop postfix
+
+    - name: Очистка конфигурации Postfix
+      file:
+        path: /etc/postfix
+        state: absent
+      tags:
+        - drop postfix
